@@ -1204,6 +1204,8 @@ if __name__ == "__main__":
         mkdir(deep_settings.log_dir)
     if not path.exists(deep_settings.report_dir):
         mkdir(deep_settings.report_dir)
+    if not path.exists(deep_settings.default_path):
+        mkdir(deep_settings.default_path)
 
     logger = logging.getLogger("main")
     logger.setLevel(logging.DEBUG)
