@@ -1,0 +1,80 @@
+﻿{
+    "Model_name": "SEIR",
+    "Description": "",
+    "Stages": [
+        {
+            "name": "S",
+            "start_num": "100"
+        },
+        {
+            "name": "E",
+            "start_num": "0"
+        },
+        {
+            "name": "I",
+            "start_num": "1"
+        },
+        {
+            "name": "R",
+            "start_num": "0"
+        }
+    ],
+    "Flows": [
+        {
+            "source": "S",
+            "sfactor": "0.04",
+            "dfactor": "",
+            "dynamic": false,
+            "dic_target": {
+                "E": "1"
+            },
+            "induction": true,
+            "dic_ind": {
+                "I": "1"
+            }
+        },
+        {
+            "source": "E",
+            "sfactor": "0.01",
+            "dfactor": "",
+            "dynamic": false,
+            "dic_target": {
+                "I": "1"
+            },
+            "induction": false,
+            "dic_ind": {}
+        },
+        {
+            "source": "I",
+            "sfactor": "0.005",
+            "dfactor": "",
+            "dynamic": false,
+            "dic_target": {
+                "R": "1"
+            },
+            "induction": false,
+            "dic_ind": {}
+        }
+    ],
+    "Ow_flows": [],
+    "Dfactors": [],
+    "Settings": {
+        "check_period": 100,
+        "braking_dist": 20,
+        "threshold": 0.0001,
+        "limit_step": "1000",
+        "max_step": 10000,
+        "stop_mode": "a",
+        "divided_n": true
+    },
+    "Associated result files": [
+        {
+            "filename": "D:/my/demmo/result/SEIR_result_01.csv",
+            "info": "Result filename: D:/my/demmo/result/SEIR_result_01.csv\nModel filename: D:/my/demmo/models/SEIR.ecm\nModel name: SEIR\nDescription: \n\nStages:\nS (100); E (0); I (1); R (0); \nFlows:\n1 flow:\nS --(0.04)--> (100%)E \ninducing by: (1) I;\n2 flow:\nE --(0.01)--> (100%)I \n3 flow:\nI --(0.005)--> (100%)R \nGroups: D:/my/demmo/result/SEIR_result_01_group_01.csv\nS: S; \nIE: E; I; \nR: R; \n"
+        },
+        {
+            "filename": "D:/my/demmo/result/SEIR_result_01_group_01.csv",
+            "info": ""
+        }
+    ]
+}

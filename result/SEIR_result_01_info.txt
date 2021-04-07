@@ -1,0 +1,19 @@
+﻿Result filename: D:/my/demmo/result/SEIR_result_01.csv
+Model filename: D:/my/demmo/models/SEIR.ecm
+Model name: SEIR
+Description: 
+
+Stages:
+S (100); E (0); I (1); R (0); 
+Flows:
+1 flow:
+S --(0.04)--> (100%)E 
+inducing by: (1) I;
+2 flow:
+E --(0.01)--> (100%)I 
+3 flow:
+I --(0.005)--> (100%)R 
+Groups: D:/my/demmo/result/SEIR_result_01_group_01.csv
+S: S; 
+IE: E; I; 
+R: R; 

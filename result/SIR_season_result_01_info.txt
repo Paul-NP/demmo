@@ -1,0 +1,13 @@
+﻿Result filename: D:/my/demmo/result/SIR_season_result_01.csv
+Model filename: D:/my/demmo/models/SIR_season.ecm
+Model name: SIR_season
+Description: 
+
+Stages:
+S (100); I (1); R (0); 
+Flows:
+1 flow:
+S --(dynamic)--> (100%)I 
+inducing by: (1) I;
+2 flow:
+I --(0.001)--> (100%)R 
