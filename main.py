@@ -1196,7 +1196,7 @@ if __name__ == "__main__":
     deep_settings = DeepSettings(program_path)
     settings = Settings()
 
-    if not path.exists(deep_settings.data_dir):
+    if not path.exists(deep_settings.result_dir):
         mkdir(deep_settings.result_dir)
     if not path.exists(deep_settings.data_dir):
         mkdir(deep_settings.data_dir)
