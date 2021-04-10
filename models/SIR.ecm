@@ -52,10 +52,5 @@
         "stop_mode": "a",
         "divided_n": true
     },
-    "Associated result files": [
-        {
-            "filename": "D:/my/demmo/result/SIR_result_01.csv",
-            "info": "Result filename: D:/my/demmo/result/SIR_result_01.csv\nModel filename: D:/my/demmo/models/SIR.ecm\nModel name: SIR\nDescription: Simple SIR\n\nStages:\nS (100); I (1); R (0); \nFlows:\n1 flow:\nS --(0.04)--> (100%)I \ninducing by: (1) I;\n2 flow:\nI --(0.01)--> (100%)R \n"
-        }
-    ]
+    "Associated result files": []
 }

@@ -67,14 +67,5 @@
         "stop_mode": "a",
         "divided_n": true
     },
-    "Associated result files": [
-        {
-            "filename": "D:/my/demmo/result/SEIR_result_01.csv",
-            "info": "Result filename: D:/my/demmo/result/SEIR_result_01.csv\nModel filename: D:/my/demmo/models/SEIR.ecm\nModel name: SEIR\nDescription: \n\nStages:\nS (100); E (0); I (1); R (0); \nFlows:\n1 flow:\nS --(0.04)--> (100%)E \ninducing by: (1) I;\n2 flow:\nE --(0.01)--> (100%)I \n3 flow:\nI --(0.005)--> (100%)R \nGroups: D:/my/demmo/result/SEIR_result_01_group_01.csv\nS: S; \nIE: E; I; \nR: R; \n"
-        },
-        {
-            "filename": "D:/my/demmo/result/SEIR_result_01_group_01.csv",
-            "info": ""
-        }
-    ]
+    "Associated result files": []
 }
