@@ -522,14 +522,19 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             for ow_fl in common_dic["Ow_flows"]:
                 self.list_owflow.append(OWFlowContent(list_factor=self.list_dfactor, parent_w=self, **ow_fl))
             for res in common_dic["Associated result files"]:
-                if not res["filename"] in [r.f_path + r.file_result for r in self.list_result]:
-                    self.list_result.append(Result(parent_w=self, delimiter=self.user_settings.file_delimiter,
+                if not path.exists(res["filename"]):
+                    msg = self.get_message_text(["Not_exist_result", res["filename"], ""])
+                    self.show_message(msg, "Warning_save_title")
+                    logger.warning("Not exist result {0}".format(res["filename"]))
+                else:
+                    if not res["filename"] in [r.f_path + r.file_result for r in self.list_result]:
+                        self.list_result.append(Result(parent_w=self, delimiter=self.user_settings.file_delimiter,
                                                    floating_point=self.user_settings.floating_point,
                                                    **res))
-                else:
-                    msg = self.get_message_text(["Exist_result", res["filename"], ""])
-                    self.show_message(msg, "Warning_save_title")
-                    logger.warning("Exist result {0}".format(res["filename"]))
+                    else:
+                        msg = self.get_message_text(["Exist_result", res["filename"], ""])
+                        self.show_message(msg, "Warning_save_title")
+                        logger.warning("Exist result {0}".format(res["filename"]))
                 # self.list_result.append(ResultContent(user_settings=self.user_settings, **res))
 
             self.settings = Settings(**common_dic["Settings"])
