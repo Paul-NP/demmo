@@ -1198,7 +1198,7 @@ if __name__ == "__main__":
     program_name = path.basename(sys.argv[0])
     program_path = path.abspath(sys.argv[0])
     program_path = program_path[:-len(program_name)]
-    deep_settings = DeepSettings(program_path)
+    deep_settings = DeepSettings(program_path, program_version="0.0.2 beta")
     settings = Settings()
 
     if not path.exists(deep_settings.result_dir):

@@ -80,6 +80,7 @@ class FlowContent:
             if len(self.dic_target) == 0:
                 info.append(["Empty_flow_target", fl_i, ""])
                 logger.warning("Empty flow target: {}".format(fl_i))
+                # check = False
             else:
                 for tar in self.dic_target:
                     try:
@@ -139,6 +140,7 @@ class FlowContent:
                             info.append(["Negative_flow_sfactor", fl_i, ""])
                             logger.warning("Negative flow sfactor {}".format(fl_i))
                             check = False
+                        # elif factor.
                     except ValueError:
                         info.append(["Incorrect_flow_sfactor", fl_i, ""])
                         logger.warning("Incorrect flow sfactor {}".format(fl_i))

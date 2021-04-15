@@ -89,9 +89,9 @@ class Settings:
 
 
 class DeepSettings:
-    def __init__(self, path):
+    def __init__(self, path, program_version='0.0.1 beta'):
         program_path = path.replace("\\", "/")
-        self.program_version = "0.0.1 beta"
+        self.program_version = program_version
         self.program_name = "DEMMo"
         self.full_name = "{name} {vers}".format(name=self.program_name, vers=self.program_version)
         self.max_recent_file = 10
