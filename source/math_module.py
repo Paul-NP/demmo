@@ -34,7 +34,7 @@ class Flow:
         """
         :param source: string, name of source stage
         :param target: dictionary, {target: probability}
-        :param factor: float, coefficient of this flow
+        :param factor: Factor
         :param induction: bool
         :param inducing_stages: dictionary, {name: infectiousness}
         """

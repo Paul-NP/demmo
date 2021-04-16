@@ -19,6 +19,7 @@ from source.settings import Settings, DeepSettings, UserSettings
 from source.settings_dialog import SettingsDialog, QuestionDialog
 from source.new_model_dialog import NewModelDialog
 from source.message import Message, ErrorMessage
+from source.global_func import input_to_num
 import traceback
 import logging
 
@@ -727,10 +728,18 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 info.append(["Num_flows", "", ""])
                 check = False
             else:
+                # сумма коэффициентов для каждой стадии как источника
+                source_f_sum = {st.name: 0 for st in self.list_stage}
+
                 for fl in self.list_flow:
                     flow, check_add, info_add = fl.get_flow(el_i)
                     if check_add:
                         flows.append(flow)
+
+                        # добавляет к сумме коэффициентов стадий как источников
+                        if not fl.dynamic:
+                            source_f_sum[fl.source] += input_to_num(fl.sfactor)
+
                         for tar in flow.target:
                             if not tar in [st.name for st in stages]:
                                 info.append(["Not_exist_flow_target", el_i, tar])
@@ -744,6 +753,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                         check = False
                         info += info_add
                     el_i += 1
+
+                for source in source_f_sum:
+                    if source_f_sum[source] >= 1:
+                        info.append(["Large_sum_factor_stage_as_source", source, ""])
+                        logger.warning("Large sum factor stage as source: {}".format(source))
+                        check = False
 
             # добавление и проверка однонаправленных потоков
             element = "Ow_flow"
