@@ -3,7 +3,8 @@ import sys
 from configparser import ConfigParser
 from itertools import (product, count)
 from string import ascii_lowercase
-from os import (path, mkdir, startfile)
+from os import (path, mkdir)
+import webbrowser
 import json
 import matplotlib.pyplot as plt
 from source.widgets_content import (StageContent, FlowContent, OWFlowContent, DFactorContent, Result)
@@ -235,7 +236,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def open_help(self):
         try:
-            startfile(self.deep_settings.help_dir + self.deep_settings.help_filename)
+            logger.debug("Open help with webbrowser")
+            webbrowser.open(self.deep_settings.help_dir + self.deep_settings.help_filename)
+            #startfile(self.deep_settings.help_dir + self.deep_settings.help_filename)
         except Exception:
             logger.warning("Cannot open help file", exc_info=True)
             section = self.user_settings.language.upper()
