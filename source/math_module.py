@@ -311,7 +311,7 @@ class DynamicFactor:
         self.offset = x_values[0]
         len_range = keys_x[-1] - keys_x[0] + 1
         self.values = np.zeros(len_range)
-        func = interpolate.interp1d(keys_x, keys_y, kind="quadratic")
+        func = interpolate.interp1d(keys_x, keys_y, kind="linear")
         for i in range(len_range):
             self.values[i] = func(i + self.offset)
 
