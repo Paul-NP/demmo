@@ -12,7 +12,7 @@ To run the program through python on any system, install the following libraries
 Для запуска программы через python на любой системе необходимо установить следующие библиотеки:
 PyQt5
 Matplotlib
-Skipy
+SciPy
 Numpy
 
 Ready version for windows: 
