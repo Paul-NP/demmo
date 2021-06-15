@@ -15,6 +15,10 @@ class GroupContent:
 
         logger.debug("Init GroupContent")
 
+    def __repr__(self):
+        result = "{0} : {1}"
+        return result.format(self.name, self.stage_lst)
+
 
 class GroupWidget(QtWidgets.QWidget, Ui_GroupWidget):
     def __init__(self, group_c, number, parent_w):

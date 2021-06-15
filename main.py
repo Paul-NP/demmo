@@ -810,6 +810,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
                     self.model.start_model()
                     self.add_result(filename, True)
+                    # self.add_result(filename[:-4] + "_flows.csv", False)
                 else:
                     logger.warning("model not maked")
         except Exception as e:

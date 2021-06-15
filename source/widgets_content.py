@@ -472,7 +472,7 @@ class Result:
 
         return group_result_dic
 
-    def add_group_info(self, suffix):
+    def add_group_info(self, suffix=""):
         self.info += "Groups: " + self.f_path + self.file_result[:-4] + suffix + "\n"
         for gr in self.groups:
             self.info += gr.name + ": "
