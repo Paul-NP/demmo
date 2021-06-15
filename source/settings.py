@@ -89,7 +89,7 @@ class Settings:
 
 
 class DeepSettings:
-    def __init__(self, path, program_version='0.0.1 beta'):
+    def __init__(self, path, program_version='0.0.3 beta'):
         program_path = path.replace("\\", "/")
         self.program_version = program_version
         self.program_name = "DEMMo"
