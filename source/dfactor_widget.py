@@ -32,6 +32,8 @@ class DFactorWidget(QtWidgets.QWidget, Ui_Dfactor):
             self.Dfactor_browse_btn.clicked.connect(self.select_file)
             self.Dfactor_load_btn.clicked.connect(self.load_value)
 
+            self.Dfactor_name_edit.textEdited.connect(self.update_parents_flows)
+
             self.set_text()
 
             for step in self.content.dic_values:
@@ -44,6 +46,11 @@ class DFactorWidget(QtWidgets.QWidget, Ui_Dfactor):
             emsg = ErrorMessage(message=msg, parent_w=self.parent_w)
             emsg.exec_()
             raise SystemExit(1)
+
+    def update_parents_flows(self):
+        self.parent_w.update_info()
+        self.parent_w.update_flows()
+        self.parent_w.update_owflows()
 
     def add_step_value(self):
         try:

@@ -19,6 +19,7 @@ class StageWidget(QtWidgets.QWidget, Ui_Stage):
             self.Stage_name_edit.setText(stage_c.name)
             self.Stage_start_num_edit.setText(str(stage_c.start_num))
             self.Del_stage_btn.clicked.connect(self.delete)
+            self.Stage_name_edit.textEdited.connect(self.update_parents_flows)
             #self.Del_stage_btn.setIcon(QtGui.QIcon("icon/delete_icon_2.png"))
             #self.Del_stage_btn.setIconSize(QtCore.QSize(20, 20))
 
@@ -32,6 +33,11 @@ class StageWidget(QtWidgets.QWidget, Ui_Stage):
             emsg = ErrorMessage(message=msg, parent_w=self.parent_w)
             emsg.exec_()
             raise SystemExit(1)
+
+    def update_parents_flows(self):
+        self.parent_w.update_info()
+        self.parent_w.update_flows()
+        self.parent_w.update_owflows()
 
     def set_text(self):
         section = self.parent_w.user_settings.language.upper()
