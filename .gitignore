@@ -3,3 +3,8 @@
 /reports/
 /result/
 /tools/
+/models/
+!/models/SIR.ecm
+!/models/SEIR.ecm
+!/models/SIR_bd.ecm
+!/models/SIR_season.ecm
