@@ -758,7 +758,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                     el_i += 1
 
                 for source in source_f_sum:
-                    if source_f_sum[source] >= 1:
+                    if source_f_sum[source] >= 1 and not self.settings.divided_n:
                         info.append(["Large_sum_factor_stage_as_source", source, ""])
                         logger.warning("Large sum factor stage as source: {}".format(source))
                         check = False

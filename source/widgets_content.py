@@ -140,7 +140,7 @@ class FlowContent:
                             info.append(["Negative_flow_sfactor", fl_i, ""])
                             logger.warning("Negative flow sfactor {}".format(fl_i))
                             check = False
-                        elif factor.factor >= 1:
+                        elif factor.factor >= 1 and not self.parent_w.settings.divided_n:
                             info.append(["Large_flow_sfactor", fl_i, ""])
                             logger.warning("Large flow sfactor {}".format(fl_i))
                             check = False
