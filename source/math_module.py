@@ -3,6 +3,7 @@ import numpy as np
 from scipy import interpolate
 import csv
 import logging
+from random import random
 
 logger = logging.getLogger("main." + __name__)
 logger.debug("load module")
@@ -143,6 +144,7 @@ class EpidemicModel:
         self.result_model = {}
         self.result_flows = {}
         self.step = 0
+        self.population = None
         # default settings
         self.stop_mode = "a"
         self.check_period = 100
@@ -151,6 +153,8 @@ class EpidemicModel:
         self.limit_step = 1000
         self.max_step = 10000
         self.divided_n = True
+        # modeling method: math or imitation
+        self.method = "math"
 
         if settings != "default":
             self.stop_mode = settings["stop_mode"]
@@ -160,6 +164,8 @@ class EpidemicModel:
             self.limit_step = settings["limit_step"]
             self.max_step = settings["max_step"]
             self.divided_n = settings["divided_n"]
+            if "method" in settings:
+                self.method = settings["method"]
 
         for st in stages:
             self.model_state[st.name] = st.num
@@ -237,6 +243,57 @@ class EpidemicModel:
         for fl in self.flows:
             self.result_flows[str(fl)] = []
 
+        if self.method == "math":
+            self.run_math_model()
+        elif self.method == "imitation":
+            self.run_imit_model()
+
+    def run_imit_model(self):
+        self.step = 0
+        # создание и заполнение массива индивидов
+        self.population = np.zeros(self.population_size, dtype=int)
+        pop_index = 0
+        for st_i in range(len(self.stages)):
+            for i in range(pop_index, pop_index + self.stages[st_i].num):
+                pop_index = i
+                self.population[pop_index] = st_i
+            pop_index += 1
+
+        while self.model_run:
+            pass
+
+    def imitation_step(self):
+        new_state = dict(self.model_state)
+        self.population_size = sum(self.model_state[st] for st in self.model_state)
+
+        transition_propab = {}
+        for st in stages:
+            transition_propab[st.name] = {}
+            for fl in flows:
+                if fl.source == "st":
+                    propabs = fl.get_change(self.model_state, self.population_size, self.step, self.divided_n)[0]
+                    for target in propabs:
+                        propabs[target] /= st.num
+                    transition_propab[st.name].update(propabs)
+            transition_propab[st.name].pop(st.name, None)
+
+        for ind in self.population:
+            for target in transition_propab[self.stages[ind]]:
+                if random() < transition_propab[self.stages[ind]][target]:
+
+
+
+
+        for o_w_fl in self.one_way_flows:
+            change = o_w_fl.get_change(self.model_state, self.population_size, self.step)
+            if change == "to_zero":
+                new_state[o_w_fl.stage] = 0
+            else:
+                new_state[o_w_fl.stage] += change
+        # self.model_state = new_state
+        return new_state
+
+    def run_math_model(self):
         self.step = 0
         while self.model_run:
             new_state = self.model_step()
@@ -351,9 +408,9 @@ class DynamicFactor:
 
 if __name__ == "__main__":
     from settings import Settings
-    S = DiseaseStage("susceptible", 500)
-    I = DiseaseStage("infectious", 5)
-    R = DiseaseStage("recovered", 0)
+    S = DiseaseStage("susceptible", 100)
+    I = DiseaseStage("infectious", 10)
+    R = DiseaseStage("recovered", 1)
     stages = [S, I, R]
 
     #x, y = DynamicFactor.take_file("test_csv.csv", delimiter=",")
@@ -362,9 +419,9 @@ if __name__ == "__main__":
     #SI_f = Factor(SI_f_value, dynamic=True)
     SI_f = Factor(0.04)
     IR_f = Factor(0.01)
-    IS_f = Factor(0.01)
+    # IS_f = Factor(0.01)
     SI = Flow("susceptible", {"infectious": 1}, SI_f, induction=True, inducing_stages={"infectious": 1})
-    IR = Flow("infectious", {"recovered": 1}, IS_f)
+    IR = Flow("infectious", {"recovered": 1}, IR_f)
     # IR = Flow("infectious", {"recovered": 1}, IR_f)
     flows = [SI, IR]
 
@@ -377,9 +434,10 @@ if __name__ == "__main__":
     owflows = []
 
     settings = dict(vars(Settings()))
+    settings["method"] = "imitation"
 
     Model = EpidemicModel(stages, flows, owflows, stop_mode="m", settings=settings)
-    filename = get_filename()
+    filename = "test_imitation.csv"
 
     Model.start_model()
     Model.write_result_file(filename, delimiter=";", floating_point=".")
