@@ -4,6 +4,7 @@
 /result/
 /tools/
 /models/
+/.idea/
 /help/DEMMo_help.docx
 !/models/SIR.ecm
 !/models/SEIR.ecm
