@@ -48,6 +48,20 @@ class Flow:
 
         logger.debug("Init Flow")
 
+    def get_target_propab(self, model_state, population_size, step, divided_n):
+        flow = self.factor.get_factor(step)
+        if self.induction:
+            ind_flow = 0
+            for i_stage in self.inducing_stages:
+                ind_flow += self.inducing_stages[i_stage] * model_state[i_stage]
+            flow *= ind_flow
+            if divided_n:
+                flow /= population_size
+        target_propab = {}
+        for t in self.target:
+            target_propab[t] = self.target[t] * flow
+        return target_propab
+
     def get_flow(self, model_state, population_size, step, divided_n):
         """
         Calculate the flow value given the state of the model
@@ -252,45 +266,60 @@ class EpidemicModel:
         self.step = 0
         # создание и заполнение массива индивидов
         self.population = np.zeros(self.population_size, dtype=int)
+        self.stage_id = {}
         pop_index = 0
         for st_i in range(len(self.stages)):
+            self.stage_id[self.stages[st_i].name] = st_i
             for i in range(pop_index, pop_index + self.stages[st_i].num):
                 pop_index = i
                 self.population[pop_index] = st_i
             pop_index += 1
 
         while self.model_run:
-            pass
+            new_state = self.imitation_step()
+            self.model_run = self.check_stop(new_state)
+
+            # заполнение словаря
+            self.result_model["step"].append(self.step)
+            self.result_flows["step"].append(self.step)
+            for st in self.model_state:
+                self.result_model[st].append(self.model_state[st])
+
+            self.model_state = new_state
+            self.step += 1
 
     def imitation_step(self):
         new_state = dict(self.model_state)
+        for st in new_state:
+            new_state[st] = 0
+
         self.population_size = sum(self.model_state[st] for st in self.model_state)
 
         transition_propab = {}
-        for st in stages:
+        for st in self.stages:
             transition_propab[st.name] = {}
-            for fl in flows:
-                if fl.source == "st":
-                    propabs = fl.get_change(self.model_state, self.population_size, self.step, self.divided_n)[0]
-                    for target in propabs:
-                        propabs[target] /= st.num
+            for fl in self.flows:
+                if fl.source == st.name:
+                    propabs = fl.get_target_propab(self.model_state, self.population_size, self.step, self.divided_n)
                     transition_propab[st.name].update(propabs)
-            transition_propab[st.name].pop(st.name, None)
 
-        for ind in self.population:
-            for target in transition_propab[self.stages[ind]]:
-                if random() < transition_propab[self.stages[ind]][target]:
+        print(transition_propab)
 
+        for ind_i in self.population:
+            change = False
+            #print("I am ind[{0}], I in {1}-{2}".format(ind_i, self.population[ind_i],
+            #                                           self.stages[self.population[ind_i]].name))
+            for target in transition_propab[self.stages[self.population[ind_i]].name]:
 
+                if random() < transition_propab[self.stages[self.population[ind_i]].name][target] and not change:
+                    self.population[ind_i] = self.stage_id[target]
+                    change = True
 
+            #print("After I am ind[{0}], I in {1}-{2}".format(ind_i, self.population[ind_i],
+            #                                           self.stages[self.population[ind_i]].name))
 
-        for o_w_fl in self.one_way_flows:
-            change = o_w_fl.get_change(self.model_state, self.population_size, self.step)
-            if change == "to_zero":
-                new_state[o_w_fl.stage] = 0
-            else:
-                new_state[o_w_fl.stage] += change
-        # self.model_state = new_state
+            new_state[self.stages[self.population[ind_i]].name] += 1
+        print(new_state)
         return new_state
 
     def run_math_model(self):
@@ -409,15 +438,15 @@ class DynamicFactor:
 if __name__ == "__main__":
     from settings import Settings
     S = DiseaseStage("susceptible", 100)
-    I = DiseaseStage("infectious", 10)
-    R = DiseaseStage("recovered", 1)
+    I = DiseaseStage("infectious", 2)
+    R = DiseaseStage("recovered", 0)
     stages = [S, I, R]
 
     #x, y = DynamicFactor.take_file("test_csv.csv", delimiter=",")
     #SI_f_value = [x, y]
 
     #SI_f = Factor(SI_f_value, dynamic=True)
-    SI_f = Factor(0.04)
+    SI_f = Factor(0.002)
     IR_f = Factor(0.01)
     # IS_f = Factor(0.01)
     SI = Flow("susceptible", {"infectious": 1}, SI_f, induction=True, inducing_stages={"infectious": 1})
@@ -434,6 +463,7 @@ if __name__ == "__main__":
     owflows = []
 
     settings = dict(vars(Settings()))
+    settings["divided_n"] = False
     settings["method"] = "imitation"
 
     Model = EpidemicModel(stages, flows, owflows, stop_mode="m", settings=settings)
