@@ -4,6 +4,7 @@ from scipy import interpolate
 import csv
 import logging
 from random import random
+import json
 
 logger = logging.getLogger("main." + __name__)
 logger.debug("load module")
@@ -29,6 +30,9 @@ class DiseaseStage:
     def __repr__(self):
         return "DiseaseStage: {0} ({1})".format(self.name, self.num)
 
+    def get_to_file(self):
+        return {"name": self.name, "start_num": str(self.num)}
+
 
 class Flow:
     def __init__(self, source, target, factor, induction=False, inducing_stages={}):
@@ -47,6 +51,26 @@ class Flow:
             self.inducing_stages = inducing_stages
 
         logger.debug("Init Flow")
+
+    def get_to_file(self):
+        to_file_dic = {"source": self.source, "dfactor": "", "induction": self.induction}
+        if self.factor.dynamic:
+            to_file_dic["sfactor"] = ""
+            to_file_dic["dynamic"] = True
+        else:
+            to_file_dic["sfactor"] = str(self.factor.factor)
+            to_file_dic["dynamic"] = False
+        dit_target = {}
+        for t in self.target:
+            dit_target[t] = str(self.target[t])
+        to_file_dic["dic_target"] = dit_target
+        dic_ind = {}
+        if self.induction:
+            for i_s in self.inducing_stages:
+                dic_ind[i_s] = str(self.inducing_stages[i_s])
+        to_file_dic["dic_ind"] = dic_ind
+
+        return to_file_dic
 
     def get_target_propab(self, model_state, population_size, step, divided_n):
         flow = self.factor.get_factor(step)
@@ -95,13 +119,15 @@ class Flow:
     def __repr__(self):
         present = "Flow: ({f}) {s} -> ".format(f=str(self.factor), s=self.source)
         for t in self.target:
-            present += t + ", "
+            #present += t + ", "
+            present += "{0} ({1}), ".format(t, self.target[t])
         if self.induction:
-            present += "\ninducing by: "
+            present += "inducing by: "
             for ist in self.inducing_stages:
                 present += ist + ", "
+            present = present[:-2] + "."
         else:
-            present += "\n not inducing"
+            present += "not inducing."
 
         return present
 
@@ -119,6 +145,10 @@ class ExternalFlow:
         self.direction = 1 if direction else -1
 
         logger.debug("Init ExternalFlow")
+
+    def get_to_file(self):
+        # не сделал
+        return {}
 
     def get_change(self, model_state, population_size, step):
         """
@@ -351,16 +381,41 @@ class EpidemicModel:
 
         file.close()
 
+    def get_settings(self):
+        settings_dic = {"check_period": str(self.check_period), "braking_dist": str(self.braking_dist),
+                        "threshold": str(self.threshold), "limit_step": str(self.limit_step),
+                        "max_step": str(self.max_step), "stop_mode": str(self.stop_mode),
+                        "divided_n": str(self.divided_n)}
+        return settings_dic
+
+    def create_model_file(self, model_name: str, description: str = ""):
+        common_dic = {"Model_name": model_name, "Description": description,
+                      "Stages": [], "Flows": [], "Ow_flows": [], "Dfactors": [],
+                      "Settings": self.get_settings(), "Associated result files": []}
+
+        for st in self.stages:
+            common_dic["Stages"].append(st.get_to_file())
+
+        for fl in self.flows:
+            common_dic["Flows"].append(fl.get_to_file())
+
+        for ow_fl in self.one_way_flows:
+            common_dic["Ow_flows"].append(ow_fl.get_to_file())
+
+        with open(model_name + "_model.ecm", "w", encoding="utf-8-sig") as file:
+            json.dump(common_dic, file, indent=4)
+
     def __repr__(self):
         present = "EpidemicModel:\nStages:\n"
         for s in self.stages:
             present += str(s) + "\n"
-        present += "Flows\n"
+        present += "Flows:\n"
         for fl in self.flows:
             present += str(fl) + "\n"
-        present += "Owflows\n"
-        for owfl in self.one_way_flows:
-            present += str(owfl) + "\n"
+        if self.one_way_flows:
+            present += "Owflows:\n"
+            for owfl in self.one_way_flows:
+                present += str(owfl) + "\n"
 
         return present
 
@@ -376,6 +431,10 @@ class Factor:
             self.factor = value
 
         logger.debug("Init Factor")
+
+    def get_to_file(self):
+        # не сделал
+        return {}
 
     def get_factor(self, x):
         if self.dynamic:

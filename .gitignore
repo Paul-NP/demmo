@@ -6,7 +6,6 @@
 /models/
 /.idea/
 /help/DEMMo_help.docx
-!/tools/strains_auto.py
 !/models/SIR.ecm
 !/models/SEIR.ecm
 !/models/SIR_bd.ecm

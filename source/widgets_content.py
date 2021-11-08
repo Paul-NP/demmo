@@ -431,7 +431,7 @@ class Result:
                 factor = model.flows[fl_i].factor.factor
             fstring = "{0} --({1})-".format(model.flows[fl_i].source, factor)
             for t in model.flows[fl_i].target:
-                fstring += "-> ({0}%){1} ".format(int(model.flows[fl_i].target[t] * 100), t)
+                fstring += "-> ({0}%){1} ".format(round(model.flows[fl_i].target[t] * 100, 2), t)
             fstring += "\n"
             if model.flows[fl_i].induction:
                 fstring += "inducing by:"
