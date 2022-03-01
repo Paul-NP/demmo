@@ -1,5 +1,9 @@
+import os
+
 from PyQt5 import QtCore, QtWidgets, QtGui
 import sys
+import platform
+import subprocess
 from configparser import ConfigParser
 from itertools import (product, count)
 from string import ascii_lowercase
@@ -76,6 +80,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.user_settings = UserSettings(deep_settings)
             self.user_settings = UserSettings.get_user_settings(self.user_settings)
             self.create_parser()
+
+            self.system_name = platform.system()
 
             # настройка размеров основного окна
             # screen = QtWidgets.QDesktopWidget().availableGeometry()
@@ -196,6 +202,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.update_show_result()
             app.processEvents()
 
+            self.Menu_bar.setNativeMenuBar(False)
+
             self.setWindowIcon(QtGui.QIcon(self.deep_settings.window_icon_filename))
             # установка надписей на нужном языке
             self.set_text()
@@ -236,9 +244,19 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def open_help(self):
         try:
-            logger.debug("Open help with webbrowser")
-            webbrowser.open(self.deep_settings.help_dir + self.deep_settings.help_filename)
-            #startfile(self.deep_settings.help_dir + self.deep_settings.help_filename)
+            logger.debug("Open help with")
+            filename = self.deep_settings.help_dir + self.deep_settings.help_filename.format(self.user_settings.language)
+
+            if not path.exists(filename):
+                filename = self.deep_settings.help_dir + self.deep_settings.help_filename.format("english")
+
+            if self.system_name == "Windows":
+                os.startfile(filename)
+            elif self.system_name == "Darwin":
+                subprocess.call(("open", filename))
+            else:
+                subprocess.call(('xdg-open', filename))
+
         except Exception:
             logger.warning("Cannot open help file", exc_info=True)
             section = self.user_settings.language.upper()
@@ -247,7 +265,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             message = message.format(dir=self.deep_settings.help_dir)
             msg = Message(message, title, self)
             msg.exec_()
-
 
     def set_all_enabled(self, enabled):
         logger.debug("set_all_enabled {}".format(enabled))

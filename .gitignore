@@ -5,7 +5,7 @@
 /tools/
 /models/
 /.idea/
-/help/DEMMo_help.docx
+/help/*.docx
 !/models/SIR.ecm
 !/models/SEIR.ecm
 !/models/SIR_bd.ecm

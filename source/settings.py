@@ -114,7 +114,7 @@ class DeepSettings:
         self.log_temple_filename = log_temple_filename.replace(" ", "_")
         self.log_filename = ""
         self.help_dir = program_path + "help/"
-        self.help_filename = "DEMMo_help.pdf"
+        self.help_filename = "DEMMo_help_{0}.pdf"
         self.file_log_format = "%(asctime)s - %(levelname)s - %(name)s - %(message)s"
         self.console_log_format = "%(message)-20s\t- %(levelname)s\t- %(name)s"
         self.splash_filename = program_path + "image/splash.png"
