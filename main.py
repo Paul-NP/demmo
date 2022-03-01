@@ -255,7 +255,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             elif self.system_name == "Darwin":
                 subprocess.call(("open", filename))
             else:
-                subprocess.call(('xdg-open', filename))
+                if subprocess.call(('xdg-open', filename)) != 0:
+                    raise Exception
 
         except Exception:
             logger.warning("Cannot open help file", exc_info=True)
