@@ -245,10 +245,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def open_help(self):
         try:
             logger.debug("Open help with")
-            filename = self.deep_settings.help_dir + self.deep_settings.help_filename.format(self.user_settings.language)+"_"
+            filename = self.deep_settings.help_dir + \
+                       self.deep_settings.help_filename.format(self.user_settings.language)
 
             if not path.exists(filename):
-                filename = self.deep_settings.help_dir + self.deep_settings.help_filename.format("english")+"_"
+                filename = self.deep_settings.help_dir + self.deep_settings.help_filename.format("english")
 
             if self.system_name == "Windows":
                 os.startfile(filename)
