@@ -245,10 +245,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def open_help(self):
         try:
             logger.debug("Open help with")
-            filename = self.deep_settings.help_dir + self.deep_settings.help_filename.format(self.user_settings.language)
+            filename = self.deep_settings.help_dir + self.deep_settings.help_filename.format(self.user_settings.language)+"_"
 
             if not path.exists(filename):
-                filename = self.deep_settings.help_dir + self.deep_settings.help_filename.format("english")
+                filename = self.deep_settings.help_dir + self.deep_settings.help_filename.format("english")+"_"
 
             if self.system_name == "Windows":
                 os.startfile(filename)
@@ -263,8 +263,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             title = self.lang_parser.get(section, "Warning_title", fallback="Warning_title")
             message = self.lang_parser.get(section, "Help_open_error_msg", fallback="Help_open_error_msg\n{dir}")
             message = message.format(dir=self.deep_settings.help_dir)
-            msg = Message(message, title, self)
-            msg.exec_()
+            self.show_message(message, title)
 
     def set_all_enabled(self, enabled):
         logger.debug("set_all_enabled {}".format(enabled))
