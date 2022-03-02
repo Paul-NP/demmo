@@ -10,3 +10,4 @@
 !/models/SEIR.ecm
 !/models/SIR_bd.ecm
 !/models/SIR_season.ecm
+/source/ui_py/*.ui
