@@ -254,7 +254,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             if self.system_name == "Windows":
                 os.startfile(filename)
             elif self.system_name == "Darwin":
-                subprocess.call(("open", filename))
+                if subprocess.call(("open", filename)) != 0:
+                    raise Exception
             else:
                 if subprocess.call(('xdg-open', filename)) != 0:
                     raise Exception
