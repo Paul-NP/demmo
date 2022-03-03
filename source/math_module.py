@@ -1,6 +1,5 @@
 from os import path
 import numpy as np
-from scipy import interpolate
 import csv
 import logging
 from random import random
@@ -449,6 +448,27 @@ class Factor:
             return str(self.factor)
 
 
+class OwnIntInterpolator:
+    def __init__(self, x_array, y_array):
+        common_lst = []
+        for i in range(len(x_array)):
+            common_lst.append([x_array[i], y_array[i]])
+        common_lst.sort()
+        self.x_shift = common_lst[0][0]
+        result_func = [common_lst[0][1]]
+        for i in range(1, len(common_lst)):
+            y_step = (common_lst[i][1] - common_lst[i-1][1]) / (common_lst[i][0] - common_lst[i-1][0])
+            for x in range(common_lst[i][0] - common_lst[i-1][0]):
+                result_func.append(result_func[-1] + y_step)
+        result_func = list(map(lambda x: round(x, 2), result_func))
+        self.func_values = tuple(result_func)
+        logger.debug("Init OwnIntInterpolator")
+
+    def func(self, x):
+
+        return self.func_values[x - self.x_shift]
+
+
 class DynamicFactor:
     def __init__(self, x_values, y_values):
         keys_x = np.array(x_values, dtype=int)
@@ -456,10 +476,9 @@ class DynamicFactor:
         self.offset = x_values[0]
         len_range = keys_x[-1] - keys_x[0] + 1
         self.values = np.zeros(len_range)
-        func = interpolate.interp1d(keys_x, keys_y, kind="linear")
+        inter = OwnIntInterpolator(keys_x, keys_y)
         for i in range(len_range):
-            self.values[i] = func(i + self.offset)
-
+            self.values[i] = inter.func(i + self.offset)
         logger.debug("Init DynamicFactor")
 
     def get_factor(self, x):
@@ -492,43 +511,3 @@ class DynamicFactor:
         y = np.array(y, dtype=float)
         file.close()
         return x, y
-
-
-if __name__ == "__main__":
-    from settings import Settings
-    S = DiseaseStage("susceptible", 100)
-    I = DiseaseStage("infectious", 2)
-    R = DiseaseStage("recovered", 0)
-    stages = [S, I, R]
-
-    #x, y = DynamicFactor.take_file("test_csv.csv", delimiter=",")
-    #SI_f_value = [x, y]
-
-    #SI_f = Factor(SI_f_value, dynamic=True)
-    SI_f = Factor(0.002)
-    IR_f = Factor(0.01)
-    # IS_f = Factor(0.01)
-    SI = Flow("susceptible", {"infectious": 1}, SI_f, induction=True, inducing_stages={"infectious": 1})
-    IR = Flow("infectious", {"recovered": 1}, IR_f)
-    # IR = Flow("infectious", {"recovered": 1}, IR_f)
-    flows = [SI, IR]
-
-    #inpSf = Factor(0.0001)
-    #otpIf = Factor(0.01)
-    # ExternalFlow()
-    #inpS = ExternalFlow("susceptible", inpSf, True)
-    #otpI = ExternalFlow("infectious", otpIf, False)
-    #owflows = [inpS, otpI]
-    owflows = []
-
-    settings = dict(vars(Settings()))
-    settings["divided_n"] = False
-    settings["method"] = "imitation"
-
-    Model = EpidemicModel(stages, flows, owflows, stop_mode="m", settings=settings)
-    filename = "test_imitation.csv"
-
-    Model.start_model()
-    Model.write_result_file(filename, delimiter=";", floating_point=".")
-
-    input("end")
