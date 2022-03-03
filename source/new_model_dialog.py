@@ -18,7 +18,7 @@ class NewModelDialog(QtWidgets.QDialog, Ui_NewModelDialog):
             self.update_btn_box()
             self.fill_boxes()
             self.center()
-            self.setFixedSize(self.size())
+            # self.setFixedSize(self.frameSize())
             self.New_location_btn.clicked.connect(self.select_location)
             self.setWindowIcon(QtGui.QIcon(self.parent_w.deep_settings.window_icon_filename))
             logger.debug("Init NewModelDialog")
