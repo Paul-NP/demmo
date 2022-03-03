@@ -202,8 +202,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.update_show_result()
             app.processEvents()
 
-            self.Menu_bar.setNativeMenuBar(False)
-
             self.setWindowIcon(QtGui.QIcon(self.deep_settings.window_icon_filename))
             # установка надписей на нужном языке
             self.set_text()

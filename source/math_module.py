@@ -460,7 +460,6 @@ class OwnIntInterpolator:
             y_step = (common_lst[i][1] - common_lst[i-1][1]) / (common_lst[i][0] - common_lst[i-1][0])
             for x in range(common_lst[i][0] - common_lst[i-1][0]):
                 result_func.append(result_func[-1] + y_step)
-        result_func = list(map(lambda x: round(x, 2), result_func))
         self.func_values = tuple(result_func)
         logger.debug("Init OwnIntInterpolator")
 
