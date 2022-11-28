@@ -104,7 +104,15 @@ class FlowContent:
                 else:
                     for st in self.dic_ind:
                         try:
-                            dic_ind[st] = input_to_num(self.dic_ind[st])
+                            if self.dic_ind[st] in [factor.name for factor in self.list_factor]:
+                                i = 0
+                                while self.list_factor[i].name != self.dic_ind[st]:
+                                    i += 1
+                                factor, check_add, info_add = self.list_factor[i].get_factor()
+                                dic_ind[st] = factor
+                                logger.info("add dynamic induction")
+                            else:
+                                dic_ind[st] = input_to_num(self.dic_ind[st])
                         except ValueError:
                             info.append(["Incorrect_ind_stage", fl_i, st])
                             logger.warning("Incorrect ind stage: {0}, {1}".format(fl_i, st))
