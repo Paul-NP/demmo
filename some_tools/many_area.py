@@ -87,17 +87,9 @@ def get_factor_from_file(filename, val_correction=1.0, time_correction=1.0, floa
     return Factor((x_values, y_values), dynamic=True)
 
 
-if __name__ == '__main__':
-    # print("start")
-    # df_area = get_factor_from_file("beta_factor.csv.csv", delimiter=";")
-    # model = get_area_model(2, [[100, 1, 0, 0], [100, 0, 0, 0]], [[1, df_area], [df_area, 1]], (Factor(0.4), Factor(0.1)), "SIRD", death_rate=0.2)
-    # model.start_model()
-    # print(model.stages)
-    # print(model.result_model)
-    # model.write_result_file("area_test.csv", ";", ",")
-
-    cf = 1 / 104000  # city_factor
-    vf = 1.17 / 14000  # vahta_factor
+def experiment_1(filename):
+    cf = 1 / 102000  # city_factor
+    vf = 1.17 / 12000  # vahta_factor
     time_correct = 1
 
     beta = 0.12
@@ -115,11 +107,39 @@ if __name__ == '__main__':
     w2_af = [0, wf, hf, wf, wf]
     wp_af = [0, wf, 0, wf, vf]
 
-    # c1_af = [cf, 0, 0, 0, 0]
-    # w1_af = [0, wf, 0, wf, wf]
-    # c2_af = [0, 0, cf, 0, 0]
-    # w2_af = [0, wf, 0, wf, wf]
-    # wp_af = [0, wf, 0, wf, vf]
+    area_factors = [c1_af, w1_af, c2_af, w2_af, wp_af]
+    epid_factors = [Factor(beta), Factor(gama)]
+    vahta_model = get_area_model(["c1", "w1", "c2", "w2", "wp"],
+                                 start_nums, area_factors, epid_factors, "SIRD", death_rate=0.2)
+    vahta_model.stop_mode = "m"
+    vahta_model.limit_step = 1100
+    vahta_model.divided_n = False
+
+    vahta_model.start_model()
+
+    vahta_model.write_result_file(filename, delimiter=";")
+
+
+def experiment_2(filename):
+    cf = 1 / 102000  # city_factor
+    vf = 1.17 / 12000  # vahta_factor
+    time_correct = 1
+
+    beta = 0.12
+    gama = 0.1
+
+    hf = get_factor_from_file("fh.csv", val_correction=cf, time_correction=time_correct, delimiter=";")
+    wf = get_factor_from_file("fw.csv", val_correction=vf, time_correction=time_correct, delimiter=";")
+
+    # c1, w1, c2, w2, wp
+
+    start_nums = [[99990, 10, 0, 0], [2000, 0, 0, 0], [100000, 0, 0, 0], [2000, 0, 0, 0], [10000, 0, 0, 0]]
+
+    c1_af = [cf, hf, 0, 0, 0]
+    w1_af = [hf, wf, 0, 0, wf]
+    c2_af = [0, 0, cf, wf, 0]
+    w2_af = [0, 0, wf, hf, hf]
+    wp_af = [0, wf, 0, hf, vf]
 
     area_factors = [c1_af, w1_af, c2_af, w2_af, wp_af]
     epid_factors = [Factor(beta), Factor(gama)]
@@ -131,4 +151,48 @@ if __name__ == '__main__':
 
     vahta_model.start_model()
 
-    vahta_model.write_result_file("vahta_result10.csv", delimiter=";")
+    vahta_model.write_result_file(filename, delimiter=";")
+
+
+def experiment_3(filename):
+    all_pep = 224000
+    cf = 1 / (102000 / all_pep)  # city_factor
+    vf = 1.17 / (14000 / all_pep)  # vahta_factor
+    time_correct = 1
+
+    beta = 0.12
+    gama = 0.1
+
+    hf = get_factor_from_file("fh.csv", val_correction=cf, time_correction=time_correct, delimiter=";")
+    wf = get_factor_from_file("fw.csv", val_correction=vf, time_correction=time_correct, delimiter=";")
+
+    # c1, w1, c2, w2, wp
+
+    start_nums = [[99990/all_pep, 10/all_pep, 0, 0], [2000/all_pep, 0, 0, 0], [100000/all_pep, 0, 0, 0],
+                  [2000/all_pep, 0, 0, 0], [10000/all_pep, 0, 0, 0]]
+
+    c1_af = [cf, hf, 0, 0, 0]
+    w1_af = [hf, wf, 0, 0, wf]
+    c2_af = [0, 0, cf, wf, 0]
+    w2_af = [0, 0, wf, hf, hf]
+    wp_af = [0, wf, 0, hf, vf]
+
+    area_factors = [c1_af, w1_af, c2_af, w2_af, wp_af]
+    epid_factors = [Factor(beta), Factor(gama)]
+    vahta_model = get_area_model(["c1", "w1", "c2", "w2", "wp"],
+                                 start_nums, area_factors, epid_factors, "SIRD", death_rate=0.2)
+    vahta_model.stop_mode = "m"
+    vahta_model.limit_step = 1100
+    vahta_model.divided_n = False
+
+    vahta_model.start_model()
+
+    vahta_model.write_result_file(filename, delimiter=";")
+
+if __name__ == '__main__':
+    # experiment_1("results/vahta_result1.csv")
+    # experiment_2("results/vahta_result2.csv")
+    experiment_3("results/vahta_result3.csv")
+
+
+

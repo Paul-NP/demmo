@@ -76,7 +76,10 @@ class Flow:
         if self.induction:
             ind_flow = 0
             for i_stage in self.inducing_stages:
-                ind_flow += self.inducing_stages[i_stage] * model_state[i_stage]
+                if isinstance(self.inducing_stages[i_stage], Factor):
+                    ind_flow += self.inducing_stages[i_stage].get_factor(step) * model_state[i_stage]
+                else:
+                    ind_flow += self.inducing_stages[i_stage] * model_state[i_stage]
             flow *= ind_flow
             if divided_n:
                 flow /= population_size
