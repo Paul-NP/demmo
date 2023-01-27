@@ -426,16 +426,20 @@ class EpidemicModel:
 
 
 class Factor:
-    def __init__(self, value, dynamic=False):
-        self.dynamic = dynamic
-        if self.dynamic:
-            x_values = value[0]
-            y_values = value[1]
-            self.factor = DynamicFactor(x_values, y_values)
-        else:
-            self.factor = value
+    def __init__(self, value=[], dynamic=False):
+        if value:
+            self.dynamic = dynamic
+            if self.dynamic:
+                x_values = value[0]
+                y_values = value[1]
+                self.factor = DynamicFactor(x_values, y_values)
+            else:
+                self.factor = value
 
-        logger.debug("Init Factor")
+            logger.debug("Init Factor")
+        else:
+            self.factor = None
+            self.dynamic = None
 
     def get_to_file(self):
         # не сделал
@@ -446,6 +450,32 @@ class Factor:
             return self.factor.get_factor(x)
         else:
             return self.factor
+
+    def copy(self):
+        if self.dynamic:
+            new_factor = Factor()
+            new_factor.factor = self.factor.copy()
+            new_factor.dynamic = True
+        else:
+            new_factor = Factor(self.factor, dynamic=False)
+
+        return new_factor
+
+    def __mul__(self, other):
+        if isinstance(other, (int, float)):
+            new_factor = self.copy()
+            new_factor.factor *= other
+            return new_factor
+        elif isinstance(other, Factor) and not other.dynamic:
+            return self * other.factor
+        else:
+            raise ValueError(f"cannot multiply {type(self)} on {type(other)}")
+
+    def __add__(self, other):
+        if isinstance(other, Factor) and self.dynamic and other.dynamic:
+            new_factor = self.copy()
+            new_factor.factor = self.factor + other.factor
+            return new_factor
 
     def __repr__(self):
         if self.dynamic:
@@ -475,16 +505,20 @@ class OwnIntInterpolator:
 
 
 class DynamicFactor:
-    def __init__(self, x_values, y_values):
-        keys_x = np.array(x_values, dtype=int)
-        keys_y = np.array(y_values)
-        self.offset = x_values[0]
-        len_range = keys_x[-1] - keys_x[0] + 1
-        self.values = np.zeros(len_range)
-        inter = OwnIntInterpolator(keys_x, keys_y)
-        for i in range(len_range):
-            self.values[i] = inter.func(i + self.offset)
-        logger.debug("Init DynamicFactor")
+    def __init__(self, x_values=[], y_values=[]):
+        if x_values and y_values:
+            keys_x = np.array(x_values, dtype=int)
+            keys_y = np.array(y_values)
+            self.offset = x_values[0]
+            len_range = keys_x[-1] - keys_x[0] + 1
+            self.values = np.zeros(len_range)
+            inter = OwnIntInterpolator(keys_x, keys_y)
+            for i in range(len_range):
+                self.values[i] = inter.func(i + self.offset)
+            logger.debug("Init DynamicFactor")
+        else:
+            self.offset = None
+            self.values = None
 
     def get_factor(self, x):
         if x < self.offset:
@@ -516,3 +550,41 @@ class DynamicFactor:
         y = np.array(y, dtype=float)
         file.close()
         return x, y
+
+    def copy(self):
+        new_df = DynamicFactor()
+        new_df.offset = self.offset
+        self.values: np.ndarray
+        new_df.values = self.values.copy()
+        return new_df
+
+    def __mul__(self, other):
+        if isinstance(other, (int, float)):
+            new_df = self.copy()
+            new_df.values *= other
+            return new_df
+        else:
+            raise ValueError(f"cannot multiply {type(self)} on {type(other)}")
+
+    def __add__(self, other):
+        if isinstance(other, DynamicFactor):
+            new_df = self.copy()
+            new_df.values += other.values
+            return new_df
+
+
+if __name__ == '__main__':
+    df1 = Factor([[1, 10, 11, 20, 21, 30], [1, 1, 0, 0, 1, 1]], dynamic=True)
+    df2 = Factor([[1, 10, 11, 20, 21, 30], [0, 0, 1, 1, 0, 0]], dynamic=True)
+    sf1 = Factor(0.1)
+    sf2 = Factor(0.2)
+
+    nf = df1 * sf1 + df2 * sf2
+
+    print(df1.factor.values)
+    print(df2.factor.values)
+    print(sf1.factor)
+    print(sf2.factor)
+    print((df1 * sf1).factor.values)
+    print((df2 * sf2).factor.values)
+    print(nf.factor.values)

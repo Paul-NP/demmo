@@ -2,6 +2,7 @@ import csv
 import math
 
 from import_modules import EpidemicModel, DynamicFactor, Factor, DiseaseStage, Flow
+from show_graphs import show_result
 
 
 def own_set(sequence) -> tuple:
@@ -70,11 +71,31 @@ def get_area_model(name_areas, start_nums, factors_areas, model_factors,
     return model
 
 
+def gen_migration_factor(len_period: int, num_period: int, start: int):
+    value = bool(start)
+    x = [1]
+    y = [start]
+    for i in range(num_period):
+        x.append(x[-1] + len_period - 1)
+        y.append(int(value))
+
+        x.append(x[-1] + 1)
+        value = not value
+        y.append(int(value))
+
+    x = x[:-1]
+    y = y[:-1]
+    print(x)
+    print(y)
+    return Factor((x, y), dynamic=True)
+
+
 def get_factor_from_file(filename, val_correction=1.0, time_correction=1.0, floating_point=".", delimiter=","):
     x_values = []
     y_values = []
     with open(filename, "r", encoding="utf-8-sig") as file:
         csv_reader = csv.reader(file, delimiter=delimiter)
+
         for row in csv_reader:
             first = int(row[0])
             if floating_point != ".":
@@ -106,6 +127,7 @@ def experiment_1(filename):
     c2_af = [0, 0, cf, hf, 0]
     w2_af = [0, wf, hf, wf, wf]
     wp_af = [0, wf, 0, wf, vf]
+
 
     area_factors = [c1_af, w1_af, c2_af, w2_af, wp_af]
     epid_factors = [Factor(beta), Factor(gama)]
@@ -189,10 +211,59 @@ def experiment_3(filename):
 
     vahta_model.write_result_file(filename, delimiter=";")
 
+
+def experiment_4(filename):
+    # cf = 1 / 102000  # city_factor
+    # wf = 1.17 / 12000  # vahta_factor
+    # time_correct = 1
+    #
+    # beta = 0.12
+    # gama = 0.1
+
+    cf = 0.8 / 102000  # city_factor
+    wf = 1 / 32000  # vahta_factor
+    time_correct = 1
+
+    beta = 0.14
+    gama = 0.1
+
+    mf1 = gen_migration_factor(50, 8, 1)
+    mf2 = gen_migration_factor(50, 8, 0)
+
+    # mf1 = get_factor_from_file("mf1.csv", time_correction=time_correct, delimiter=";")
+    # mf2 = get_factor_from_file("mf2.csv", time_correction=time_correct, delimiter=";")
+
+    # c1, w1, c2, w2, wp
+
+    start_nums = [[99990, 10, 0, 0], [2000, 0, 0, 0], [100000, 0, 0, 0], [2000, 0, 0, 0], [30000, 0, 0, 0]]
+
+    c1_af = [cf, mf1 * cf, 0, 0, 0]
+    w1_af = [mf1 * cf, mf1 * cf + mf2 * wf, 0, 0, mf2 * wf]
+    c2_af = [0, 0, cf, mf2 * cf, 0]
+    w2_af = [0, 0, mf2 * cf, mf2 * cf + mf1 * wf, mf1 * wf]
+    wp_af = [0, mf2 * wf, 0, mf1 * wf, wf]
+
+    area_factors = [c1_af, w1_af, c2_af, w2_af, wp_af]
+    epid_factors = [Factor(beta), Factor(gama)]
+    vahta_model = get_area_model(["c1", "w1", "c2", "w2", "wp"],
+                                 start_nums, area_factors, epid_factors, "SIRD", death_rate=0.2)
+    vahta_model.stop_mode = "m"
+    vahta_model.limit_step = 1100
+    vahta_model.divided_n = False
+
+    vahta_model.start_model()
+
+    vahta_model.write_result_file(filename, delimiter=";")
+
+
 if __name__ == '__main__':
-    # experiment_1("results/vahta_result1.csv")
-    # experiment_2("results/vahta_result2.csv")
-    experiment_3("results/vahta_result3.csv")
+    experiment_4("results/vahta_result_10.csv")
+    show_result("results/vahta_result_10.csv", show_column=("w1_I", "w2_I"))
+    show_result("results/vahta_result_10.csv", show_column=("c1_I", "c2_I", "wp_I"))
+    show_result("results/vahta_result_10.csv", show_column=("c1_S", "c1_I", "c1_R", "c1_D"))
+    show_result("results/vahta_result_10.csv", show_column=("wp_S", "wp_I", "wp_R", "wp_D"))
+    # experiment_2("results/vahta_result_ggg.csv")
+    # experiment_3("results/vahta_result_gg.csv")
 
 
 
